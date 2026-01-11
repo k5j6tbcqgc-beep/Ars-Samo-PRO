@@ -6,28 +6,24 @@
     <title>ARS SAMO PRO</title>
     <style>
         :root { --blu: #003a70; --bg: #f4f7f9; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; }
-        .container { max-width: 400px; margin: auto; background: white; border-radius: 25px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; text-align: center; }
+        .container { max-width: 400px; margin: auto; background: white; border-radius: 25px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .btn-foto { background: var(--blu); color: white; border: none; padding: 18px; border-radius: 15px; width: 100%; font-size: 16px; font-weight: bold; cursor: pointer; }
         #preview-box { margin-top: 20px; display: none; position: relative; border-radius: 15px; overflow: hidden; border: 1px solid #ddd; background: #000; }
         #preview-img { width: 100%; display: block; opacity: 0.8; }
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; }
-        .bar-bg { width: 70%; background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden; }
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; padding: 15px; }
+        .bar-bg { width: 80%; background: #eee; height: 10px; border-radius: 5px; overflow: hidden; }
         .bar-fill { width: 0%; height: 100%; background: var(--blu); transition: width 0.3s; }
-        #status { font-size: 12px; color: var(--blu); font-weight: bold; margin-top: 10px; }
+        #status { font-size: 13px; color: var(--blu); font-weight: bold; margin-top: 10px; }
         .result-card { margin-top: 20px; text-align: left; background: #fff; border: 2px solid #e7f3ff; padding: 15px; border-radius: 18px; display: none; }
-        .price { color: var(--blu); font-size: 22px; font-weight: 800; margin: 10px 0; }
-        #debug-log { font-size: 10px; color: red; margin-top: 10px; text-align: left; display: none; white-space: pre-wrap; }
+        #debug-log { font-size: 10px; color: #7f8c8d; margin-top: 15px; text-align: left; background: #f8f9fa; padding: 10px; border-radius: 5px; display: none; white-space: pre-wrap; word-break: break-all; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div style="margin-bottom:20px">
-        <h1 style="color:var(--blu); margin:0; font-size:24px;">ARS SAMO</h1>
-        <p style="font-size:12px; color:#666; margin:5px 0 0;">AI Recognition System</p>
-    </div>
-
+    <h1 style="color:var(--blu); margin:0 0 15px; font-size:24px;">ARS SAMO</h1>
+    
     <input type="file" id="fileIn" accept="image/*" capture="environment" style="display:none">
     <button class="btn-foto" onclick="document.getElementById('fileIn').click()">📸 SCATTA O CARICA FOTO</button>
 
@@ -44,7 +40,6 @@
 </div>
 
 <script>
-// La tua chiave API
 const API_KEY = "AIzaSyAySbcpQEBBFmYRBRhvyj-0kLZ5l-cb45Y";
 
 document.getElementById('fileIn').onchange = async function(e) {
@@ -63,15 +58,14 @@ document.getElementById('fileIn').onchange = async function(e) {
     previewBox.style.display = 'block';
     loader.style.display = 'flex';
     resultDiv.style.display = 'none';
-    debug.style.display = 'none';
-    debug.innerText = "";
+    debug.style.display = 'block';
+    debug.innerText = "Avvio processo...";
 
-    const upd = (p, t) => { bar.style.width = p+'%'; status.innerText = t; };
+    const upd = (p, t) => { bar.style.width = p+'%'; status.innerText = t; debug.innerText += "\n" + t; };
 
     try {
         upd(15, "Handshaking...");
 
-        // COMPRESSIONE
         const base64 = await new Promise((resolve) => {
             const img = new Image();
             img.src = URL.createObjectURL(file);
@@ -92,44 +86,57 @@ document.getElementById('fileIn').onchange = async function(e) {
         const listaCodici = db.map(i => i.codice).join(", ");
 
         upd(65, "Confronto codici...");
-        
-        // INDIRIZZO AGGIORNATO ALLA V1 (Più stabile)
-        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-        
-        const apiRes = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [
-                    { text: "Sei un esperto Samo. Identifica il codice tra questi: " + listaCodici + ". Rispondi scrivendo SOLO il codice." },
-                    { inline_data: { mime_type: "image/jpeg", data: base64 } }
-                ]}]
-            })
-        });
 
-        if (!apiRes.ok) {
-            const errJson = await apiRes.json();
-            throw new Error(errJson.error.message || "Errore API");
+        // TENTATIVI MULTIPLI DI URL (Per risolvere l'errore 404)
+        const endpoints = [
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
+            `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`
+        ];
+
+        let apiRes;
+        let lastError = "";
+
+        for (let url of endpoints) {
+            try {
+                debug.innerText += "\nProvo endpoint: " + url.split('/')[5];
+                apiRes = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [
+                            { text: "Identifica il ricambio Samo tra questi codici: " + listaCodici + ". Scrivi SOLO il codice." },
+                            { inline_data: { mime_type: "image/jpeg", data: base64 } }
+                        ]}]
+                    })
+                });
+                if (apiRes.ok) break;
+                const errData = await apiRes.json();
+                lastError = errData.error.message;
+            } catch (e) {
+                lastError = e.message;
+            }
         }
+
+        if (!apiRes || !apiRes.ok) throw new Error("Tutti i tentativi falliti. Ultimo errore: " + lastError);
 
         upd(90, "Accesso database...");
         const data = await apiRes.json();
-        upd(95, "Prego attendere...");
-
         const aiText = data.candidates[0].content.parts[0].text.toUpperCase().trim();
         const trovato = db.find(item => aiText.includes(item.codice.toUpperCase()));
 
         loader.style.display = 'none';
+        debug.style.display = 'none';
         resultDiv.style.display = 'block';
 
         if(trovato) {
             resultDiv.innerHTML = `
-                <div style="color:var(--blu); font-weight:bold; font-size:12px; margin-bottom:10px;">IDENTIFICATO:</div>
-                <div style="font-size:18px; font-weight:800;">${trovato.codice}</div>
-                <div style="font-size:15px; margin:5px 0;">${trovato.nome}</div>
-                <div class="price">${trovato.prezzo}</div>
-                <p style="font-size:13px; color:#666; border-top:1px solid #eee; padding-top:10px;">${trovato.descrizione}</p>
-                <img src="${trovato.immagine}" style="width:100%; border-radius:10px; margin-top:10px;" onerror="this.src='https://via.placeholder.com/300?text=Foto+non+disponibile'">
+                <div style="color:var(--blu); font-weight:800; font-size:12px; margin-bottom:10px;">IDENTIFICATO:</div>
+                <div style="font-size:20px; font-weight:800;">${trovato.codice}</div>
+                <div style="font-size:16px; margin:5px 0;">${trovato.nome}</div>
+                <div style="color:var(--blu); font-size:24px; font-weight:800; margin:10px 0;">${trovato.prezzo}</div>
+                <p style="font-size:13px; color:#666;">${trovato.descrizione}</p>
+                <img src="${trovato.immagine}" style="width:100%; border-radius:12px; margin-top:10px;" onerror="this.src='https://via.placeholder.com/300?text=Immagine+Database'">
             `;
         } else {
             resultDiv.innerHTML = "<b>⚠️ Non riconosciuto</b><br><small>AI ha risposto: "+aiText+"</small>";
@@ -137,8 +144,8 @@ document.getElementById('fileIn').onchange = async function(e) {
 
     } catch (err) {
         loader.style.display = 'none';
-        debug.style.display = 'block';
-        debug.innerText = "Errore: " + err.message;
+        debug.style.color = "red";
+        debug.innerText = "ERRORE DEFINITIVO:\n" + err.message;
     }
 };
 </script>
