@@ -3,82 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ARS SAMO PRO</title>
+    <title>ARS SAMO - AI Vision</title>
     <style>
         :root { --blu: #003a70; --bg: #f4f7f9; }
-        body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 15px; text-align: center; }
-        .container { max-width: 400px; margin: auto; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .btn-foto { background: var(--blu); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-size: 16px; font-weight: bold; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; text-align: center; }
+        .container { max-width: 400px; margin: auto; background: white; border-radius: 25px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .btn-foto { background: var(--blu); color: white; border: none; padding: 18px; border-radius: 15px; width: 100%; font-size: 17px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,58,112,0.3); }
         #preview-box { margin-top: 20px; display: none; position: relative; border-radius: 15px; overflow: hidden; border: 1px solid #ddd; }
         #preview-img { width: 100%; display: block; }
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; }
-        .bar-bg { width: 80%; background: #eee; height: 10px; border-radius: 5px; overflow: hidden; }
+        .loader-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .bar-bg { width: 70%; background: #eee; height: 8px; border-radius: 4px; overflow: hidden; }
         .bar-fill { width: 0%; height: 100%; background: var(--blu); transition: width 0.3s; }
         #status { font-size: 13px; color: var(--blu); font-weight: bold; margin-top: 10px; }
-        #debug { font-size: 11px; color: #666; margin-top: 20px; text-align: left; background: #eee; padding: 10px; display: none; white-space: pre-wrap; }
+        .result-card { margin-top: 20px; text-align: left; background: #fff; border: 2px solid #e7f3ff; padding: 15px; border-radius: 18px; display: none; }
+        #error-log { font-size: 11px; color: #e74c3c; background: #fdf2f2; padding: 10px; border-radius: 10px; margin-top: 20px; display: none; white-space: pre-wrap; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1 style="color:var(--blu)">ARS SAMO</h1>
+    <h1 style="color:var(--blu); margin-bottom: 5px;">ARS SAMO</h1>
+    <p style="font-size:12px; color:#666; margin-bottom: 25px;">Sistemi di Identificazione Ricambi</p>
+    
     <input type="file" id="fileIn" accept="image/*" capture="environment" style="display:none">
-    <button class="btn-foto" onclick="document.getElementById('fileIn').click()">📸 SCATTA FOTO</button>
+    <button class="btn-foto" onclick="document.getElementById('fileIn').click()">📸 SCATTA O CARICA FOTO</button>
 
     <div id="preview-box">
         <img id="preview-img">
-        <div id="loader" class="overlay">
+        <div id="loader" class="loader-overlay">
             <div class="bar-bg"><div id="bar" class="bar-fill"></div></div>
-            <div id="status">Caricamento...</div>
+            <div id="status">Analisi...</div>
         </div>
     </div>
-    <div id="result" style="margin-top:20px; text-align:left; display:none"></div>
-    <div id="debug"></div>
+    
+    <div id="result" class="result-card"></div>
+    <div id="error-log"></div>
 </div>
 
 <script>
-// USIAMO UNA CHIAVE API PULITA (Assicurati che sia corretta)
-const API_KEY = "AIzaSyAySbcpQEBBFmYRBRhvyj-0kLZ5l-cb45Y";
+const API_KEY = "AIzaSyBYUWcPur3-5bUTa7x6-M37HMDYiAXQJsY";
 
 document.getElementById('fileIn').onchange = async function(e) {
     const file = e.target.files[0];
-    const bar = document.getElementById('bar');
-    const status = document.getElementById('status');
-    const loader = document.getElementById('loader');
-    const debug = document.getElementById('debug');
-    const resultDiv = document.getElementById('result');
+    if (!file) return;
 
+    const status = document.getElementById('status');
+    const bar = document.getElementById('bar');
+    const loader = document.getElementById('loader');
+    const resultDiv = document.getElementById('result');
+    const errorLog = document.getElementById('error-log');
+    
+    // Reset UI
     document.getElementById('preview-img').src = URL.createObjectURL(file);
     document.getElementById('preview-box').style.display = 'block';
     loader.style.display = 'flex';
-    debug.style.display = 'block';
-    debug.innerText = "Log di sistema:";
+    resultDiv.style.display = 'none';
+    errorLog.style.display = 'none';
 
-    const upd = (p, t) => { bar.style.width = p+'%'; status.innerText = t; debug.innerText += "\n- " + t; };
+    const upd = (p, t) => { bar.style.width = p+'%'; status.innerText = t; };
 
     try {
-        upd(20, "Compressione...");
+        upd(20, "Compressione immagine...");
         const base64 = await new Promise(r => {
             const reader = new FileReader();
             reader.onload = () => r(reader.result.split(',')[1]);
             reader.readAsDataURL(file);
         });
 
-        upd(40, "Caricamento Database...");
+        upd(40, "Lettura database...");
         const dbRes = await fetch('database.json');
         const db = await dbRes.json();
-        const codici = db.map(i => i.codice).join(", ");
+        const listaCodici = db.map(i => i.codice).join(", ");
 
-        upd(60, "Chiamata AI (v1beta)...");
-        // PROVIAMO L'ENDPOINT PIÙ COMPATIBILE IN ASSOLUTO
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=${API_KEY}`;
-        
-        const response = await fetch(url, {
+        upd(70, "Identificazione AI...");
+        // Endpoint v1beta con modello flash (il più compatibile per Vision)
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{ parts: [
-                    { text: "Codice ricambio tra questi: " + codici + ". Solo codice." },
+                    { text: "Analizza l'immagine. Sei un esperto di ricambi Samo. Dimmi quale di questi codici è presente: " + listaCodici + ". Rispondi scrivendo SOLO il codice trovato." },
                     { inline_data: { mime_type: "image/jpeg", data: base64 } }
                 ]}]
             })
@@ -87,45 +91,41 @@ document.getElementById('fileIn').onchange = async function(e) {
         const data = await response.json();
         
         if (!response.ok) {
-            debug.innerText += "\nERRORE: " + JSON.stringify(data);
-            // SECONDO TENTATIVO CON ALTRO MODELLO SE IL PRIMO FALLISCE
-            upd(70, "Riprovo con Flash...");
-            const url2 = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-            const res2 = await fetch(url2, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [
-                        { text: "Codice ricambio: " + codici },
-                        { inline_data: { mime_type: "image/jpeg", data: base64 } }
-                    ]}]
-                })
-            });
-            const data2 = await res2.json();
-            if (!res2.ok) throw new Error(data2.error.message);
-            processData(data2);
-        } else {
-            processData(data);
+            throw new Error(data.error ? data.error.message : "Errore nella comunicazione con l'IA");
         }
 
-        function processData(payload) {
-            upd(100, "Completato!");
-            const aiText = payload.candidates[0].content.parts[0].text.trim().toUpperCase();
-            const trovato = db.find(i => aiText.includes(i.codice.toUpperCase()));
-            
-            loader.style.display = 'none';
-            resultDiv.style.display = 'block';
-            if(trovato) {
-                resultDiv.innerHTML = `<h3>${trovato.codice}</h3><p>${trovato.nome}</p><p><b>${trovato.prezzo}</b></p><img src="${trovato.immagine}" style="width:100%">`;
-            } else {
-                resultDiv.innerHTML = "<b>Non trovato.</b> AI dice: " + aiText;
-            }
+        upd(95, "Elaborazione finale...");
+        const aiResponse = data.candidates[0].content.parts[0].text.toUpperCase();
+        
+        // Trova la corrispondenza nel database
+        const trovato = db.find(i => aiResponse.includes(i.codice.toUpperCase()));
+
+        loader.style.display = 'none';
+        resultDiv.style.display = 'block';
+
+        if(trovato) {
+            resultDiv.innerHTML = `
+                <div style="color:var(--blu); font-weight:bold; font-size:12px; margin-bottom:10px;">RICAMBIO INDIVIDUATO:</div>
+                <div style="font-size:22px; font-weight:800; color:#333;">${trovato.codice}</div>
+                <div style="font-size:16px; margin:5px 0; color:#555;">${trovato.nome}</div>
+                <div style="font-size:24px; font-weight:800; color:var(--blu); margin:10px 0;">${trovato.prezzo}</div>
+                <p style="font-size:13px; color:#777; border-top:1px solid #eee; padding-top:10px;">${trovato.descrizione}</p>
+                <img src="${trovato.immagine}" style="width:100%; border-radius:12px; margin-top:10px;" onerror="this.style.display='none'">
+            `;
+        } else {
+            resultDiv.innerHTML = `
+                <div style="padding:10px; text-align:center;">
+                    <b>⚠️ Prodotto non a catalogo</b><br>
+                    <small>L'IA ha analizzato il pezzo ma non ha trovato una corrispondenza esatta nel database.</small>
+                    <div style="margin-top:10px; font-size:10px; color:#999;">Risposta AI: ${aiResponse}</div>
+                </div>
+            `;
         }
 
     } catch (err) {
         loader.style.display = 'none';
-        debug.style.color = "red";
-        debug.innerText += "\nFALLIMENTO: " + err.message;
+        errorLog.style.display = 'block';
+        errorLog.innerText = "Attenzione: " + err.message;
     }
 };
 </script>
