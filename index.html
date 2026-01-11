@@ -3,29 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ARS SAMO AI</title>
+    <title>ARS SAMO Turbo</title>
     <style>
         :root { --blu: #003a70; --bg: #f4f7f9; }
-        body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 15px; text-align: center; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; text-align: center; }
         .container { max-width: 400px; margin: auto; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .header h1 { color: var(--blu); font-size: 22px; margin-bottom: 5px; }
-        .btn-foto { background: var(--blu); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-size: 16px; font-weight: bold; cursor: pointer; }
-        #preview-box { margin-top: 20px; display: none; position: relative; border-radius: 15px; overflow: hidden; border: 1px solid #ddd; }
+        .btn-foto { background: var(--blu); color: white; border: none; padding: 18px; border-radius: 15px; width: 100%; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,58,112,0.3); }
+        #preview-box { margin-top: 20px; display: none; position: relative; border-radius: 15px; overflow: hidden; border: 1px solid #ddd; background: #eee; }
         #preview-img { width: 100%; display: block; }
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; }
-        .bar-bg { width: 80%; background: #eee; height: 10px; border-radius: 5px; overflow: hidden; border: 1px solid #ddd; }
-        .bar-fill { width: 0%; height: 100%; background: var(--blu); transition: width 0.3s; }
-        #status { font-size: 13px; color: var(--blu); font-weight: bold; margin-top: 10px; }
-        .result { margin-top: 20px; text-align: left; background: #fff; border: 1px solid #e7f3ff; padding: 15px; border-radius: 15px; display: none; }
-        .price { color: var(--blu); font-size: 20px; font-weight: bold; }
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.92); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; }
+        .bar-bg { width: 80%; background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden; }
+        .bar-fill { width: 0%; height: 100%; background: var(--blu); transition: width 0.2s; }
+        #status { font-size: 13px; color: var(--blu); font-weight: bold; margin-top: 12px; padding: 0 10px; }
+        .result { margin-top: 20px; text-align: left; background: #fff; border: 2px solid #e7f3ff; padding: 15px; border-radius: 15px; display: none; animation: fadeIn 0.5s; }
+        .price { color: var(--blu); font-size: 24px; font-weight: 800; margin: 10px 0; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
-        <h1>ARS SAMO</h1>
-        <p style="font-size:12px; color:#666;">Vision Recognition System</p>
+    <div style="margin-bottom:20px">
+        <h1 style="color:var(--blu); margin:0; font-size:24px;">ARS SAMO</h1>
+        <p style="font-size:12px; color:#666; margin:5px 0 0;">AI Vision Recognition</p>
     </div>
 
     <input type="file" id="fileIn" accept="image/*" capture="environment" style="display:none">
@@ -35,7 +35,7 @@
         <img id="preview-img">
         <div id="loader" class="overlay">
             <div class="bar-bg"><div id="bar" class="bar-fill"></div></div>
-            <div id="status">Inizio...</div>
+            <div id="status">Inizializzazione...</div>
         </div>
     </div>
 
@@ -49,7 +49,6 @@ document.getElementById('fileIn').onchange = async function(e) {
     const file = e.target.files[0];
     if (!file) return;
 
-    // UI Setup
     const previewBox = document.getElementById('preview-box');
     const previewImg = document.getElementById('preview-img');
     const loader = document.getElementById('loader');
@@ -57,6 +56,7 @@ document.getElementById('fileIn').onchange = async function(e) {
     const status = document.getElementById('status');
     const resultDiv = document.getElementById('result');
 
+    // Reset UI
     previewImg.src = URL.createObjectURL(file);
     previewBox.style.display = 'block';
     loader.style.display = 'flex';
@@ -65,55 +65,66 @@ document.getElementById('fileIn').onchange = async function(e) {
     const upd = (p, t) => { bar.style.width = p+'%'; status.innerText = t; };
 
     try {
-        upd(25, "Handshaking...");
+        upd(10, "Handshaking...");
+
+        // COMPRESSIONE ULTRA-RAPIDA (Max 800px, Qualità 0.6)
+        const base64 = await new Promise((resolve) => {
+            const img = new Image();
+            img.src = URL.createObjectURL(file);
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const scale = Math.min(800 / img.width, 800 / img.height, 1);
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                resolve(canvas.toDataURL('image/jpeg', 0.6).split(',')[1]);
+            };
+        });
+
+        upd(40, "Ottimizzazione immagine...");
+        const dbRes = await fetch('database.json');
+        const db = await dbRes.json();
+        const codici = db.map(i => i.codice).join(", ");
+
+        upd(60, "Confronto codici...");
+        const apiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [
+                    { text: "Sei un esperto di ricambi docce SAMO. Identifica il codice in questa lista: " + codici + ". Rispondi solo col codice." },
+                    { inline_data: { mime_type: "image/jpeg", data: base64 } }
+                ]}]
+            })
+        });
+
+        upd(85, "Accesso database...");
+        const data = await apiRes.json();
+        upd(95, "Prego attendere ancora qualche istante");
         
-        // Lettura file come Base64 (metodo standard più affidabile)
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = async () => {
-            const base64 = reader.result.split(',')[1];
-            
-            upd(50, "Ottimizzazione immagine...");
-            const dbRes = await fetch('database.json');
-            const db = await dbRes.json();
-            const codici = db.map(i => i.codice).join(", ");
+        const aiCode = data.candidates[0].content.parts[0].text.trim();
+        const trovato = db.find(i => aiCode.includes(i.codice));
 
-            upd(70, "Confronto codici...");
-            const apiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [
-                        { text: "Sei un esperto di ricambi docce SAMO. Identifica il codice in questa lista: " + codici + ". Rispondi solo col codice." },
-                        { inline_data: { mime_type: "image/jpeg", data: base64 } }
-                    ]}]
-                })
-            });
-
-            upd(90, "Accesso database...");
-            const data = await apiRes.json();
-            upd(95, "Prego attendere ancora qualche istante");
-            
-            const aiCode = data.candidates[0].content.parts[0].text.trim();
-            const trovato = db.find(i => aiCode.includes(i.codice));
-
-            loader.style.display = 'none';
-            resultDiv.style.display = 'block';
-            if(trovato) {
-                resultDiv.innerHTML = `
-                    <b style="color:#003a70">RICAMBIO TROVATO</b><br>
-                    <small>Codice:</small> <b>${trovato.codice}</b><br>
-                    <small>Nome:</small> <b>${trovato.nome}</b><br><br>
-                    <div class="price">${trovato.prezzo}</div>
-                    <img src="${trovato.immagine}" style="width:100%; margin-top:10px; border-radius:10px">
-                `;
-            } else {
-                resultDiv.innerHTML = "<b>⚠️ Non riconosciuto</b><br>Inoltrare al commerciale.";
-            }
-        };
-    } catch (err) {
-        alert("Errore. Ricarica la pagina.");
         loader.style.display = 'none';
+        resultDiv.style.display = 'block';
+        if(trovato) {
+            resultDiv.innerHTML = `
+                <div style="color:var(--blu); font-weight:800; font-size:14px; margin-bottom:10px;">✔️ RICAMBIO IDENTIFICATO</div>
+                <div style="font-size:11px; color:#999; text-transform:uppercase;">Codice</div>
+                <div style="font-size:18px; font-weight:bold;">${trovato.codice}</div>
+                <div style="font-size:11px; color:#999; text-transform:uppercase; margin-top:10px;">Descrizione</div>
+                <div style="font-size:16px;">${trovato.nome}</div>
+                <div class="price">${trovato.prezzo}</div>
+                <img src="${trovato.immagine}" style="width:100%; border-radius:10px; border:1px solid #eee">
+            `;
+        } else {
+            resultDiv.innerHTML = "<div style='text-align:center; padding:20px;'><b>⚠️ Non riconosciuto</b><br><small>Inoltrare la foto al commerciale.</small></div>";
+        }
+    } catch (err) {
+        console.error(err);
+        upd(0, "Errore di connessione. Riprova.");
+        setTimeout(() => loader.style.display = 'none', 2000);
     }
 };
 </script>
