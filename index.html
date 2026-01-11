@@ -22,7 +22,7 @@
 
 <div class="container">
     <h1 style="color:var(--blu); margin:0;">ARS SAMO</h1>
-    <p style="font-size:12px; color:#666; margin-bottom:20px;">AI Identification System</p>
+    <p style="font-size:12px; color:#666; margin-bottom:20px;">AI Identification System (Gemini 3 Flash)</p>
     
     <button class="btn-foto" onclick="document.getElementById('fileIn').click()">📸 SCATTA O CARICA FOTO</button>
     <input type="file" id="fileIn" accept="image/*" capture="environment" style="display:none">
@@ -39,13 +39,14 @@
 </div>
 
 <script>
-// DATABASE INTEGRATO - Sostituisci questi esempi con i tuoi dati reali
+// Database integrato per evitare errori di caricamento file
 const db = [
-    { "codice": "RIC216", "nome": "Guarnizione Samo", "prezzo": "24,50 €", "descrizione": "Magnetica originale." },
-    { "codice": "SAMO-99", "nome": "Cerniera Cromata", "prezzo": "45,00 €", "descrizione": "Ricambio per box doccia." }
+    { "codice": "RIC216", "nome": "Guarnizione Samo", "prezzo": "24,50 €", "descrizione": "Magnetica originale per serie America." },
+    { "codice": "SAMO-99", "nome": "Cerniera Cromata", "prezzo": "45,00 €", "descrizione": "Ricambio per box doccia Samo." }
 ];
 
-const API_KEY = "AIzaSyBYUWcPur3-5bUTa7x6-M37HMDYiAXQJsY";
+// Nuova chiave API fornita dall'utente
+const API_KEY = "AIzaSyB1U52-Zfnrhx0uCoMUC0ITXunkZO4EqfQ";
 
 document.getElementById('fileIn').onchange = async function(e) {
     const file = e.target.files[0];
@@ -56,7 +57,6 @@ document.getElementById('fileIn').onchange = async function(e) {
     const bar = document.getElementById('bar');
     const previewBox = document.getElementById('preview-box');
     
-    // Mostra UI di caricamento
     document.getElementById('preview-img').src = URL.createObjectURL(file);
     previewBox.style.display = 'block';
     loader.style.display = 'flex';
@@ -72,6 +72,8 @@ document.getElementById('fileIn').onchange = async function(e) {
 
         bar.style.width = "60%";
         const listaCodici = db.map(i => i.codice).join(", ");
+        
+        // Endpoint v1beta per Gemini 3 Flash Preview
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${API_KEY}`;
         
         const response = await fetch(url, {
@@ -82,30 +84,5 @@ document.getElementById('fileIn').onchange = async function(e) {
                     { text: "Identifica il ricambio tra questi codici: " + listaCodici + ". Rispondi SOLO con il codice esatto." },
                     { inline_data: { mime_type: "image/jpeg", data: base64 } }
                 ]}],
-                generationConfig: { temperature: 0.0 }
-            })
-        });
-
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error ? data.error.message : "Errore API");
-
-        bar.style.width = "100%";
-        const aiText = data.candidates[0].content.parts[0].text.toUpperCase().trim();
-        const trovato = db.find(i => aiText.includes(i.codice.toUpperCase()));
-
-        loader.style.display = 'none';
-        resultDiv.style.display = 'block';
-
-        if(trovato) {
-            resultDiv.innerHTML = `<div style="font-size:22px; font-weight:800; color:var(--blu);">${trovato.codice}</div><div style="font-size:16px;">${trovato.nome}</div><div style="font-size:24px; font-weight:800; margin:10px 0;">${trovato.prezzo}</div><p style="font-size:13px; color:#666;">${trovato.descrizione}</p>`;
-        } else {
-            resultDiv.innerHTML = `⚠️ Non trovato. L'IA suggerisce: ${aiText}`;
-        }
-    } catch (err) {
-        loader.style.display = 'none';
-        alert("Errore tecnico: " + err.message);
-    }
-};
-</script>
-</body>
-</html>
+                generationConfig: { 
+                    temperature:
