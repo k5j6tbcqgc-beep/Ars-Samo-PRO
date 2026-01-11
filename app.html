@@ -1,0 +1,101 @@
+<div class="container">
+    <h1 style="color:#003a70; margin:0;">ARS SAMO</h1>
+    <p style="font-size:12px; color:#666; margin-bottom:20px;">Test Live su CodePen</p>
+    
+    <button class="btn-foto" onclick="document.getElementById('fileIn').click()">📸 SCATTA O CARICA FOTO</button>
+    <input type="file" id="fileIn" accept="image/*" capture="environment" style="display:none">
+
+    <div id="preview-box">
+        <img id="preview-img">
+        <div id="loader" class="overlay">
+            <div class="bar-bg"><div id="bar" class="bar-fill"></div></div>
+            <div id="status">Analisi Gemini 3...</div>
+        </div>
+    </div>
+    
+    <div id="result"></div>
+    <div id="debug-log"></div>
+</div>
+
+<style>
+    :root { --blu: #003a70; --bg: #f4f7f9; }
+    body { font-family: -apple-system, sans-serif; background: var(--bg); padding: 15px; text-align: center; }
+    .container { max-width: 400px; margin: auto; background: white; border-radius: 25px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+    .btn-foto { background: var(--blu); color: white; border: none; padding: 18px; border-radius: 15px; width: 100%; font-size: 17px; font-weight: bold; cursor: pointer; }
+    #preview-box { margin-top: 20px; display: none; position: relative; border-radius: 15px; overflow: hidden; border: 1px solid #ddd; }
+    #preview-img { width: 100%; display: block; }
+    .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; }
+    .bar-bg { width: 70%; background: #eee; height: 8px; border-radius: 4px; overflow: hidden; }
+    .bar-fill { width: 0%; height: 100%; background: var(--blu); transition: 0.3s; }
+    #result { margin-top: 20px; text-align: left; background: #e7f3ff; padding: 18px; border-radius: 18px; display: none; }
+    #debug-log { margin-top: 15px; font-size: 10px; color: #888; text-align: left; white-space: pre-wrap; background: #f9f9f9; padding: 10px; }
+</style>
+
+<script>
+const logger = (m) => { document.getElementById('debug-log').innerText += "\n> " + m; };
+
+const database = [
+    { "codice": "RIC216", "nome": "Guarnizione Samo", "prezzo": "24,50 €", "descrizione": "Originale serie America." },
+    { "codice": "SAMO-99", "nome": "Cerniera Cromata", "prezzo": "45,00 €", "descrizione": "Ricambio box doccia." }
+];
+
+const API_KEY = "AIzaSyB1U52-Zfnrhx0uCoMUC0ITXunkZO4EqfQ";
+
+document.getElementById('fileIn').onchange = async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    logger("Immagine caricata.");
+    document.getElementById('preview-img').src = URL.createObjectURL(file);
+    document.getElementById('preview-box').style.display = 'block';
+    document.getElementById('loader').style.display = 'flex';
+    document.getElementById('result').style.display = 'none';
+
+    try {
+        const base64 = await new Promise(r => {
+            const reader = new FileReader();
+            reader.onload = () => r(reader.result.split(',')[1]);
+            reader.readAsDataURL(file);
+        });
+
+        const listaCodici = database.map(i => i.codice).join(", ");
+        // Endpoint v1beta obbligatorio per Gemini 3 Flash Preview
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${API_KEY}`;
+        
+        logger("Chiamata a Gemini 3...");
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [
+                    { text: "Codici validi: " + listaCodici + ". Identifica il ricambio nella foto. Scrivi SOLO il codice o 'NON_TROVATO'." },
+                    { inline_data: { mime_type: "image/jpeg", data: base64 } }
+                ]}],
+                generationConfig: { temperature: 0.0 }
+            })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error ? data.error.message : "Errore API");
+
+        const aiText = data.candidates[0].content.parts[0].text.toUpperCase().trim();
+        logger("Risposta: " + aiText);
+
+        const trovato = database.find(i => aiText.includes(i.codice.toUpperCase()));
+        document.getElementById('loader').style.display = 'none';
+        const resDiv = document.getElementById('result');
+        resDiv.style.display = 'block';
+
+        if(trovato) {
+            resDiv.innerHTML = `<b>${trovato.codice}</b><br>${trovato.nome}<br><h2>${trovato.prezzo}</h2><p>${trovato.descrizione}</p>`;
+        } else {
+            resDiv.innerHTML = "⚠️ Non trovato. Suggerimento: " + aiText;
+        }
+
+    } catch (err) {
+        document.getElementById('loader').style.display = 'none';
+        logger("ERRORE: " + err.message);
+        alert("Errore: " + err.message);
+    }
+};
+</script>
