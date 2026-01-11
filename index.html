@@ -16,14 +16,14 @@
         .bar-fill { width: 0%; height: 100%; background: var(--blu); transition: 0.3s; }
         #status-text { font-size: 13px; color: var(--blu); font-weight: bold; margin-top: 10px; }
         #result { margin-top: 20px; text-align: left; background: #fff; border: 2px solid #e7f3ff; padding: 18px; border-radius: 18px; display: none; }
-        #debug-console { margin-top: 20px; font-size: 10px; color: #666; text-align: left; background: #eee; padding: 10px; border-radius: 10px; max-height: 100px; overflow-y: auto; display: block; }
+        #debug-console { margin-top: 20px; font-size: 10px; color: #666; text-align: left; background: #eee; padding: 10px; border-radius: 10px; max-height: 100px; overflow-y: auto; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1 style="color:var(--blu); margin:0;">ARS SAMO</h1>
-    <p style="font-size:12px; color:#666; margin-bottom:20px;">AI Identification System</p>
+    <p style="font-size:12px; color:#666; margin-bottom:20px;">AI Identification System (Gemini 3)</p>
     
     <button class="btn-foto" onclick="document.getElementById('fileIn').click()">📸 SCATTA O CARICA FOTO</button>
     <input type="file" id="fileIn" accept="image/*" capture="environment" style="display:none">
@@ -32,12 +32,12 @@
         <img id="preview-img">
         <div id="loader" class="overlay">
             <div class="bar-bg"><div id="bar" class="bar-fill"></div></div>
-            <div id="status-text">Analisi in corso...</div>
+            <div id="status-text">Analisi tecnica...</div>
         </div>
     </div>
     
     <div id="result"></div>
-    <div id="debug-console">Sistema pronto. Attesa immagine...</div>
+    <div id="debug-console">Log di sistema...</div>
 </div>
 
 <script>
@@ -52,13 +52,12 @@ const db = [
     { "codice": "SAMO-99", "nome": "Cerniera Cromata", "prezzo": "45,00 €", "descrizione": "Ricambio per box doccia Samo." }
 ];
 
+// Chiave API stabilizzata
 const API_KEY = "AIzaSyB1U52-Zfnrhx0uCoMUC0ITXunkZO4EqfQ";
 
 document.getElementById('fileIn').onchange = async function(e) {
     const file = e.target.files[0];
     if (!file) return;
-
-    logger("File selezionato: " + file.name);
 
     const loader = document.getElementById('loader');
     const resultDiv = document.getElementById('result');
@@ -72,45 +71,39 @@ document.getElementById('fileIn').onchange = async function(e) {
     resultDiv.style.display = 'none';
 
     try {
-        logger("Conversione immagine in Base64...");
+        logger("Elaborazione immagine...");
         bar.style.width = "30%";
-        const base64 = await new Promise((resolve, reject) => {
+        const base64 = await new Promise(r => {
             const reader = new FileReader();
-            reader.onload = () => resolve(reader.result.split(',')[1]);
-            reader.onerror = (err) => reject(err);
+            reader.onload = () => r(reader.result.split(',')[1]);
             reader.readAsDataURL(file);
         });
-        logger("Immagine convertita.");
 
         bar.style.width = "60%";
         const listaCodici = db.map(i => i.codice).join(", ");
         
-        logger("Chiamata a Gemini API...");
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        logger("Chiamata a Gemini 3 Flash Preview...");
+        // Endpoint aggiornato per il modello corretto
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${API_KEY}`;
         
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{ parts: [
-                    { text: "Identifica il ricambio Samo tra questi codici: " + listaCodici + ". Rispondi SOLO con il codice esatto." },
+                    { text: "Sei un esperto tecnico Samo. Identifica il ricambio tra questi codici: " + listaCodici + ". Rispondi SOLO con il codice." },
                     { inline_data: { mime_type: "image/jpeg", data: base64 } }
                 ]}],
                 generationConfig: { temperature: 0.0 }
             })
         });
 
-        logger("Risposta ricevuta dall'API.");
         const data = await response.json();
-        
-        if (!response.ok) {
-            logger("ERRORE API: " + (data.error ? data.error.message : "Sconosciuto"));
-            throw new Error(data.error ? data.error.message : "Errore API");
-        }
+        if (!response.ok) throw new Error(data.error ? data.error.message : "Errore API");
 
         bar.style.width = "100%";
         const aiText = data.candidates[0].content.parts[0].text.toUpperCase().trim();
-        logger("L'IA ha risposto: " + aiText);
+        logger("Risposta IA: " + aiText);
 
         const trovato = db.find(i => aiText.includes(i.codice.toUpperCase()));
 
@@ -125,11 +118,11 @@ document.getElementById('fileIn').onchange = async function(e) {
                 <p style="font-size:13px; color:#666;">${trovato.descrizione}</p>
             `;
         } else {
-            resultDiv.innerHTML = `⚠️ Codice non a catalogo. Suggerimento IA: <b>${aiText}</b>`;
+            resultDiv.innerHTML = `⚠️ Codice non riconosciuto: <b>${aiText}</b>`;
         }
     } catch (err) {
         loader.style.display = 'none';
-        logger("ERRORE FINALE: " + err.message);
+        logger("ERRORE: " + err.message);
         alert("Errore tecnico: " + err.message);
     }
 };
