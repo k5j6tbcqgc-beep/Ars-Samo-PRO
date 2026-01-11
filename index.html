@@ -32,12 +32,12 @@
         <img id="preview-img">
         <div id="loader" class="overlay">
             <div class="bar-bg"><div id="bar" class="bar-fill"></div></div>
-            <div id="status-text">Analisi tecnica...</div>
+            <div id="status-text">Analisi tecnica in corso...</div>
         </div>
     </div>
     
     <div id="result"></div>
-    <div id="debug-console">Log di sistema...</div>
+    <div id="debug-console">In attesa di immagine...</div>
 </div>
 
 <script>
@@ -47,12 +47,13 @@ const logger = (msg) => {
     consoleDiv.scrollTop = consoleDiv.scrollHeight;
 };
 
+// Database integrato per stabilità totale
 const db = [
     { "codice": "RIC216", "nome": "Guarnizione Samo", "prezzo": "24,50 €", "descrizione": "Magnetica originale per serie America." },
     { "codice": "SAMO-99", "nome": "Cerniera Cromata", "prezzo": "45,00 €", "descrizione": "Ricambio per box doccia Samo." }
 ];
 
-// Chiave API stabilizzata
+// Tua chiave API stabilizzata
 const API_KEY = "AIzaSyB1U52-Zfnrhx0uCoMUC0ITXunkZO4EqfQ";
 
 document.getElementById('fileIn').onchange = async function(e) {
@@ -83,7 +84,7 @@ document.getElementById('fileIn').onchange = async function(e) {
         const listaCodici = db.map(i => i.codice).join(", ");
         
         logger("Chiamata a Gemini 3 Flash Preview...");
-        // Endpoint aggiornato per il modello corretto
+        // URL Corretto per il tuo account (v1beta + gemini-3-flash-preview)
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${API_KEY}`;
         
         const response = await fetch(url, {
@@ -91,10 +92,13 @@ document.getElementById('fileIn').onchange = async function(e) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{ parts: [
-                    { text: "Sei un esperto tecnico Samo. Identifica il ricambio tra questi codici: " + listaCodici + ". Rispondi SOLO con il codice." },
+                    { text: "Sei un esperto tecnico Samo. Analizza l'immagine e confrontala con questo elenco: " + listaCodici + ". Se trovi una corrispondenza esatta, scrivi SOLO il codice. Se non sei sicuro, scrivi 'NON_TROVATO'. Non inventare mai codici." },
                     { inline_data: { mime_type: "image/jpeg", data: base64 } }
                 ]}],
-                generationConfig: { temperature: 0.0 }
+                generationConfig: { 
+                    temperature: 0.0, // Elimina le allucinazioni
+                    topP: 0.1
+                }
             })
         });
 
@@ -118,7 +122,7 @@ document.getElementById('fileIn').onchange = async function(e) {
                 <p style="font-size:13px; color:#666;">${trovato.descrizione}</p>
             `;
         } else {
-            resultDiv.innerHTML = `⚠️ Codice non riconosciuto: <b>${aiText}</b>`;
+            resultDiv.innerHTML = `⚠️ Ricambio non riconosciuto nel database attuale.<br><small>L'IA ha suggerito: ${aiText}</small>`;
         }
     } catch (err) {
         loader.style.display = 'none';
