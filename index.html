@@ -2,59 +2,280 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARS SAMO - Vision</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ARS SAMO - Sistema Riconoscimento</title>
     <style>
-        body { font-family: -apple-system, sans-serif; text-align: center; padding: 20px; background: #f0f2f5; color: #333; }
-        .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        h1 { color: #0056b3; font-size: 24px; margin-bottom: 5px; }
-        .subtitle { color: #666; font-size: 14px; margin-bottom: 20px; }
-        
-        /* Stile Immagini */
-        .img-box { width: 100%; border-radius: 10px; margin-top: 15px; border: 1px solid #ddd; display: none; }
-        .comparison-label { font-size: 12px; font-weight: bold; color: #0056b3; margin-top: 10px; text-transform: uppercase; }
-        
-        .upload-btn { background: #0056b3; color: white; padding: 18px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; display: block; width: 100%; margin: 20px 0; }
-        
-        #result { text-align: left; padding: 15px; background: #e3f2fd; border-left: 5px solid #0056b3; border-radius: 8px; display: none; margin-top: 20px; }
-        .loader { display: none; margin: 20px auto; border: 4px solid #f3f3f3; border-top: 4px solid #0056b3; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        :root {
+            --blu-samo: #003a70;
+            --azzurro-chiaro: #e7f3ff;
+            --grigio-bg: #f4f7f9;
+            --rosso-errore: #d32f2f;
+            --verde-prezzo: #2e7d32;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--grigio-bg);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            color: #2c3e50;
+        }
+
+        .container {
+            max-width: 420px;
+            width: 100%;
+            background: white;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        /* Testata con Logo */
+        .header {
+            background: white;
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .header img {
+            max-height: 70px; /* Regola l'altezza del tuo logo qui */
+            margin-bottom: 10px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .header h1 {
+            color: var(--blu-samo);
+            margin: 0;
+            font-size: 22px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header p {
+            margin: 5px 0 0;
+            font-size: 12px;
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        .main-content {
+            padding: 20px;
+        }
+
+        /* Pulsante Scatta Foto */
+        .btn-foto {
+            background: var(--blu-samo);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 15px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 6px 20px rgba(0,58,112,0.25);
+            transition: all 0.3s;
+        }
+
+        .btn-foto:active {
+            transform: scale(0.97);
+            box-shadow: 0 2px 10px rgba(0,58,112,0.2);
+        }
+
+        /* Area Anteprima */
+        #preview-box {
+            margin-top: 20px;
+            position: relative;
+            display: none;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid #ddd;
+        }
+
+        #preview-img { width: 100%; display: block; }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--blu-samo);
+        }
+
+        /* Risultati */
+        #scheda-risultato {
+            margin-top: 20px;
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .info-card {
+            background: white;
+            border: 2px solid var(--azzurro-chiaro);
+            border-radius: 20px;
+            padding: 18px;
+        }
+
+        .etichetta { font-size: 11px; color: #95a5a6; text-transform: uppercase; margin-bottom: 2px; font-weight: 700; }
+        .valore { font-size: 17px; font-weight: 700; margin-bottom: 12px; color: #34495e; }
+
+        .badge-prezzo {
+            background: var(--azzurro-chiaro);
+            color: var(--blu-samo);
+            padding: 10px 15px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 20px;
+            display: inline-block;
+        }
+
+        /* Messaggio Errore */
+        .messaggio-errore {
+            background: #fff5f5;
+            color: var(--rosso-errore);
+            padding: 20px;
+            border-radius: 18px;
+            text-align: center;
+            border: 1px dashed #feb2b2;
+            line-height: 1.5;
+        }
+
+        #foto-ufficiale {
+            width: 100%;
+            border-radius: 15px;
+            margin-top: 15px;
+            border: 1px solid #eee;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .spinner {
+            width: 30px; height: 30px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--blu-samo);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>ARS SAMO</h1>
-    <div class="subtitle">Identificazione Ricambi Originali</div>
+    <div class="header">
+        <img src="logo.png" alt="Logo SAMO" onerror="this.style.display='none'">
+        <h1>ARS SAMO</h1>
+        <p>Sistema Riconoscimento Ricambi</p>
+    </div>
 
-    <input type="file" id="fileInput" accept="image/*" style="display: none;">
-    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">📸 SCATTA O CARICA FOTO</button>
+    <div class="main-content">
+        <input type="file" id="inputFile" accept="image/*" capture="environment" style="display: none;">
+        
+        <button class="btn-foto" onclick="document.getElementById('inputFile').click()">
+            📸 SCATTA O SELEZIONA FOTO
+        </button>
 
-    <div class="loader" id="loader"></div>
+        <div id="preview-box">
+            <img id="preview-img" alt="Anteprima">
+            <div id="loading" class="loading-overlay" style="display:none;">
+                <div class="spinner"></div>
+                ANALISI IN CORSO...
+            </div>
+        </div>
 
-    <div id="userPhotoLabel" class="comparison-label" style="display:none;">Tua Foto:</div>
-    <img id="preview" class="img-box" alt="Anteprima">
-
-    <div id="officialPhotoLabel" class="comparison-label" style="display:none;">Riscontro Originale:</div>
-    <img id="officialImage" class="img-box" alt="Ricambio Originale">
-
-    <div id="result">
-        <strong>DETTAGLI RICAMBIO:</strong>
-        <div id="textResult"></div>
+        <div id="scheda-risultato">
+            <div id="contenuto-esito"></div>
+        </div>
     </div>
 </div>
 
 <script>
-    const fileInput = document.getElementById('fileInput');
-    const preview = document.getElementById('preview');
-    const officialImage = document.getElementById('officialImage');
-    const resultDiv = document.getElementById('result');
-    const textResult = document.getElementById('textResult');
-    const loader = document.getElementById('loader');
+    const inputFile = document.getElementById('inputFile');
+    const previewImg = document.getElementById('preview-img');
+    const previewBox = document.getElementById('preview-box');
+    const schedaRisultato = document.getElementById('scheda-risultato');
+    const contenutoEsito = document.getElementById('contenuto-esito');
+    const loading = document.getElementById('loading');
 
-    fileInput.addEventListener('change', function(e) {
+    inputFile.addEventListener('change', async function(e) {
         const file = e.target.files[0];
         if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload
+        // Reset e Visualizzazione anteprima
+        previewImg.src = URL.createObjectURL(file);
+        previewBox.style.display = 'block';
+        schedaRisultato.style.display = 'none';
+        loading.style.display = 'flex';
+
+        setTimeout(async () => {
+            try {
+                const response = await fetch('database.json');
+                if (!response.ok) throw new Error();
+                const db = await response.json();
+                
+                const nomeFile = file.name.toUpperCase();
+                // Ricerca del codice nel nome del file caricato
+                let trovato = db.find(item => nomeFile.includes(item.codice.toUpperCase()));
+
+                loading.style.display = 'none';
+                schedaRisultato.style.display = 'block';
+
+                if (trovato) {
+                    contenutoEsito.innerHTML = `
+                        <div style="font-size:12px; font-weight:800; color:var(--blu-samo); margin-bottom:10px;">✔️ RICAMBIO TROVATO</div>
+                        <div class="info-card">
+                            <div class="etichetta">Codice Ricambio</div>
+                            <div class="valore">${trovato.codice}</div>
+                            
+                            <div class="etichetta">Nome Prodotto</div>
+                            <div class="valore">${trovato.nome}</div>
+
+                            <div class="etichetta">Descrizione Tecnica</div>
+                            <div class="valore" style="font-size:14px; color:#666;">${trovato.descrizione}</div>
+                            
+                            <div class="etichetta">Prezzo Listino</div>
+                            <div class="badge-prezzo">${trovato.prezzo}</div>
+
+                            <div style="margin-top:20px; border-top:1px solid #eee; padding-top:15px;">
+                                <div class="etichetta">Foto Ufficiale</div>
+                                <img src="${trovato.immagine}" id="foto-ufficiale" onerror="this.parentElement.style.display='none'">
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    contenutoEsito.innerHTML = `
+                        <div class="messaggio-errore">
+                            <strong>⚠️ Ricambio non riconosciuto</strong><br>
+                            <span style="font-size:14px; font-weight:normal;">Inoltrare la richiesta al commerciale di riferimento.</span>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                loading.style.display = 'none';
+                alert("Errore: impossibile caricare il database.");
+            }
+        }, 1800);
+    });
+</script>
+
+</body>
+</html>
