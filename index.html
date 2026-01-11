@@ -3,69 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ARS SAMO - AI Vision Turbo</title>
+    <title>ARS SAMO PRO</title>
     <style>
-        :root { --blu: #003a70; --azzurro: #e7f3ff; --bg: #f4f7f9; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; justify-content: center; }
-        .container { max-width: 420px; width: 100%; background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
-        
-        /* Header */
-        .header { background: white; padding: 25px 20px; text-align: center; border-bottom: 1px solid #eee; }
-        .header img { max-height: 60px; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto; }
-        .header h1 { color: var(--blu); margin: 0; font-size: 22px; text-transform: uppercase; letter-spacing: 1px; }
-        .header p { margin: 5px 0 0; font-size: 12px; color: #7f8c8d; }
-
-        .main-content { padding: 20px; }
-        
-        /* Pulsante */
-        .btn-foto { background: var(--blu); color: white; border: none; padding: 18px; border-radius: 15px; width: 100%; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 6px 20px rgba(0,58,112,0.25); transition: transform 0.2s; }
-        .btn-foto:active { transform: scale(0.98); }
-
-        /* Anteprima e Loader */
-        #preview-box { margin-top: 20px; position: relative; display: none; border-radius: 18px; overflow: hidden; border: 1px solid #ddd; background: #fafafa; }
-        #preview-img { width: 100%; display: block; }
-        
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.92); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; padding: 20px; box-sizing: border-box; }
-        
-        .bar-bg { width: 100%; background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden; border: 1px solid #ccc; }
-        .bar-fill { width: 0%; height: 100%; background: var(--blu); transition: width 0.3s ease; }
-        #status-text { font-size: 14px; color: var(--blu); font-weight: 700; margin-top: 15px; text-align: center; }
-
-        /* Risultati */
-        #result { margin-top: 20px; display: none; animation: slideUp 0.4s ease-out; }
-        .info-card { background: white; border: 2px solid var(--azzurro); border-radius: 20px; padding: 18px; }
-        .label { font-size: 11px; color: #95a5a6; text-transform: uppercase; font-weight: 700; margin-bottom: 2px; }
-        .value { font-size: 17px; font-weight: 700; margin-bottom: 12px; color: #34495e; }
-        .price-tag { background: var(--azzurro); color: var(--blu); padding: 10px 15px; border-radius: 12px; font-weight: 800; font-size: 22px; display: inline-block; margin: 5px 0; }
-        
-        .error-box { background: #fff5f5; color: #d32f2f; padding: 20px; border-radius: 18px; text-align: center; border: 1px dashed #feb2b2; }
-
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        :root { --blu: #003a70; --bg: #f4f7f9; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; }
+        .container { max-width: 400px; margin: auto; background: white; border-radius: 25px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
+        .btn-foto { background: var(--blu); color: white; border: none; padding: 18px; border-radius: 15px; width: 100%; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,58,112,0.3); }
+        #preview-box { margin-top: 20px; display: none; position: relative; border-radius: 15px; overflow: hidden; border: 1px solid #ddd; background: #000; }
+        #preview-img { width: 100%; display: block; opacity: 0.8; }
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; }
+        .bar-bg { width: 70%; background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden; }
+        .bar-fill { width: 0%; height: 100%; background: var(--blu); transition: width 0.3s; }
+        #status { font-size: 12px; color: var(--blu); font-weight: bold; margin-top: 10px; }
+        .result-card { margin-top: 20px; text-align: left; background: #fff; border: 2px solid #e7f3ff; padding: 15px; border-radius: 18px; display: none; }
+        .price { color: var(--blu); font-size: 22px; font-weight: 800; margin: 10px 0; }
+        #debug-log { font-size: 10px; color: red; margin-top: 10px; text-align: left; display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
-        <img src="logo.png" alt="Logo SAMO" onerror="this.style.display='none'">
-        <h1>ARS SAMO</h1>
-        <p>AI Vision Recognition System</p>
+    <div style="margin-bottom:20px">
+        <h1 style="color:var(--blu); margin:0; font-size:24px;">ARS SAMO</h1>
+        <p style="font-size:12px; color:#666; margin:5px 0 0;">AI Recognition System</p>
     </div>
 
-    <div class="main-content">
-        <input type="file" id="fileIn" accept="image/*" capture="environment" style="display:none">
-        <button class="btn-foto" onclick="document.getElementById('fileIn').click()">📸 ANALIZZA RICAMBIO</button>
+    <input type="file" id="fileIn" accept="image/*" capture="environment" style="display:none">
+    <button class="btn-foto" onclick="document.getElementById('fileIn').click()">📸 SCATTA O CARICA FOTO</button>
 
-        <div id="preview-box">
-            <img id="preview-img">
-            <div id="loader" class="overlay">
-                <div class="bar-bg"><div id="bar" class="bar-fill"></div></div>
-                <div id="status-text">Inizializzazione...</div>
-            </div>
+    <div id="preview-box">
+        <img id="preview-img">
+        <div id="loader" class="overlay">
+            <div class="bar-bg"><div id="bar" class="bar-fill"></div></div>
+            <div id="status">Inizializzazione...</div>
         </div>
-
-        <div id="result"></div>
     </div>
+
+    <div id="result" class="result-card"></div>
+    <div id="debug-log"></div>
 </div>
 
 <script>
@@ -79,106 +54,86 @@ document.getElementById('fileIn').onchange = async function(e) {
     const previewImg = document.getElementById('preview-img');
     const loader = document.getElementById('loader');
     const bar = document.getElementById('bar');
-    const statusText = document.getElementById('status-text');
+    const status = document.getElementById('status');
     const resultDiv = document.getElementById('result');
+    const debug = document.getElementById('debug-log');
 
-    // UI Reset
+    // Reset UI
     previewImg.src = URL.createObjectURL(file);
     previewBox.style.display = 'block';
     loader.style.display = 'flex';
     resultDiv.style.display = 'none';
+    debug.innerText = "";
 
-    const upd = (p, t) => { bar.style.width = p+'%'; statusText.innerText = t; };
+    const upd = (p, t) => { bar.style.width = p+'%'; status.innerText = t; };
 
     try {
-        // STEP 1: Handshaking
-        upd(25, "Handshaking...");
+        upd(15, "Handshaking...");
 
-        // STEP 2: Compressione Ultra-Rapida
-        const base64 = await new Promise((resolve, reject) => {
+        // COMPRESSIONE
+        const base64 = await new Promise((resolve) => {
             const img = new Image();
             img.src = URL.createObjectURL(file);
             img.onload = () => {
                 const canvas = document.createElement('canvas');
-                const MAX_SIZE = 800;
-                let w = img.width;
-                let h = img.height;
-                if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } }
-                else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } }
-                canvas.width = w; canvas.height = h;
+                const scale = Math.min(800 / img.width, 800 / img.height, 1);
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
                 const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, w, h);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                 resolve(canvas.toDataURL('image/jpeg', 0.6).split(',')[1]);
             };
-            img.onerror = reject;
         });
 
-        // STEP 3: Database e Prompt
-        upd(50, "Ottimizzazione immagine...");
+        upd(40, "Ottimizzazione immagine...");
         const dbRes = await fetch('database.json');
+        if (!dbRes.ok) throw new Error("Database non trovato su GitHub");
         const db = await dbRes.json();
-        const codiciDisponibili = db.map(i => i.codice).join(", ");
+        const listaCodici = db.map(i => i.codice).join(", ");
 
-        // STEP 4: Chiamata a Gemini
-        upd(70, "Confronto codici...");
+        upd(65, "Confronto codici...");
         const apiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{ parts: [
-                    { text: "Sei un esperto di ricambi docce SAMO. Analizza l'immagine e identifica quale codice corrisponde a uno di questi: " + codiciDisponibili + ". Rispondi scrivendo SOLO il codice trovato, senza altre parole." },
+                    { text: "Sei un esperto Samo. Identifica questo ricambio tra questi codici: " + listaCodici + ". Rispondi scrivendo SOLO il codice." },
                     { inline_data: { mime_type: "image/jpeg", data: base64 } }
                 ]}]
             })
         });
 
-        // STEP 5: Elaborazione Risultato
+        if (!apiRes.ok) throw new Error("Errore API Gemini. Verifica la chiave.");
+        
         upd(90, "Accesso database...");
         const data = await apiRes.json();
-        upd(95, "prego attendere ancora qualche istante");
+        upd(95, "Prego attendere...");
+
+        const aiText = data.candidates[0].content.parts[0].text.toUpperCase().trim();
         
-        let aiCode = "";
-        try {
-            aiCode = data.candidates[0].content.parts[0].text.trim().toUpperCase();
-        } catch(e) {
-            aiCode = "NON_TROVATO";
+        // RICERCA ROBUSTA: cerchiamo se il codice è contenuto nella risposta
+        const trovato = db.find(item => aiText.includes(item.codice.toUpperCase()));
+
+        loader.style.display = 'none';
+        resultDiv.style.display = 'block';
+
+        if(trovato) {
+            resultDiv.innerHTML = `
+                <div style="color:var(--blu); font-weight:bold; font-size:12px; margin-bottom:10px;">IDENTIFICATO:</div>
+                <div style="font-size:18px; font-weight:800;">${trovato.codice}</div>
+                <div style="font-size:15px; margin:5px 0;">${trovato.nome}</div>
+                <div class="price">${trovato.prezzo}</div>
+                <p style="font-size:13px; color:#666; border-top:1px solid #eee; padding-top:10px;">${trovato.descrizione}</p>
+                <img src="${trovato.immagine}" style="width:100%; border-radius:10px; margin-top:10px;" onerror="this.src='https://via.placeholder.com/300?text=Foto+non+disponibile'">
+            `;
+        } else {
+            resultDiv.innerHTML = "<div style='padding:15px;'><b>⚠️ Non riconosciuto</b><br><small>Invia la foto al commerciale. (AI ha risposto: "+aiText+")</small></div>";
         }
 
-        // Ricerca nel database (flessibile)
-        const trovato = db.find(i => aiCode.includes(i.codice.toUpperCase()) || i.codice.toUpperCase().includes(aiCode));
-
-        // Visualizzazione Finale
-        setTimeout(() => {
-            loader.style.display = 'none';
-            resultDiv.style.display = 'block';
-            
-            if(trovato) {
-                resultDiv.innerHTML = `
-                    <div class="info-card">
-                        <div style="color:var(--blu); font-weight:800; font-size:12px; margin-bottom:10px;">✔️ IDENTIFICATO CON SUCCESSO</div>
-                        <div class="label">Codice</div><div class="value">${trovato.codice}</div>
-                        <div class="label">Nome Prodotto</div><div class="value">${trovato.nome}</div>
-                        <div class="label">Prezzo di Listino</div><div class="price-tag">${trovato.prezzo}</div>
-                        <div style="margin-top:10px;">
-                            <div class="label">Foto Ufficiale</div>
-                            <img src="${trovato.immagine}" style="width:100%; border-radius:12px; margin-top:5px; border:1px solid #eee">
-                        </div>
-                    </div>
-                `;
-            } else {
-                resultDiv.innerHTML = `
-                    <div class="error-box">
-                        <strong>⚠️ Ricambio non riconosciuto</strong><br>
-                        <p style="font-size:13px; font-weight:normal; margin-top:10px;">L'IA non è riuscita a identificare il pezzo con certezza. Inoltrare la richiesta al commerciale.</p>
-                    </div>
-                `;
-            }
-        }, 600);
-
     } catch (err) {
-        console.error(err);
-        upd(0, "Errore tecnico. Ricarica la pagina.");
-        setTimeout(() => loader.style.display = 'none', 3000);
+        loader.style.display = 'none';
+        debug.style.display = 'block';
+        debug.innerText = "Errore: " + err.message;
     }
 };
 </script>
