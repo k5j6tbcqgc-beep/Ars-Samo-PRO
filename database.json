@@ -1,0 +1,282 @@
+[
+  {
+    "codice": "RIC216",
+    "nome": "Blocco Scorrevole",
+    "prezzo": "€ 100 (Listino 80)",
+    "descrizione": "Gruppo 4 pezzi blocco scorrevole",
+    "immagine": "foto/RIC216.jpg"
+  },
+  {
+    "codice": "RIC216L01",
+    "nome": "Blocco Scorrevole L01",
+    "prezzo": "€ 100 (Listino 80)",
+    "descrizione": "Gruppo 4 pezzi blocco scorrevole versione L01",
+    "immagine": "foto/Ric216L01.jpg"
+  },
+  {
+    "codice": "RIC1075ULU",
+    "nome": "Blocco scorrevole ULU",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "Gruppo 4 Scorrimenti completi",
+    "immagine": "foto/RIC1075ULU.jpg"
+  },
+  {
+    "codice": "RIC350",
+    "nome": "Blocco scorrevole",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "blocco scorrevole per serie 350",
+    "immagine": "foto/RIC350.jpg"
+  },
+  {
+    "codice": "RIC625",
+    "nome": "Blocco scorrevole / Guarnizione",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "blocco scorrevole orizzontale",
+    "immagine": "foto/RIC625.jpg"
+  },
+  {
+    "codice": "RIC841",
+    "nome": "Scorrevole New Cee",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "scorrevole per NEW CEE: un KIT contiene 4 di questi gruppi",
+    "immagine": "foto/RIC841.jpg"
+  },
+  {
+    "codice": "RIC871C",
+    "nome": "Gruppo cerniere",
+    "prezzo": "€ 95,00 cadauna",
+    "descrizione": "cerniera singola per Polaris design",
+    "immagine": "foto/RIC871.jpg"
+  },
+  {
+    "codice": "RIC876",
+    "nome": "Guarnizione calamitata",
+    "prezzo": "€ 31,00 (Listino 80)",
+    "descrizione": "coppia guarnizioni calamitate",
+    "immagine": "foto/RIC876.jpg"
+  },
+  {
+    "codice": "RIC1079ULU",
+    "nome": "Blocco scorrevole snodato",
+    "prezzo": "€ 70,00",
+    "descrizione": "Gruppo 2 Scorrimenti completi (sup + inf) per scorrevole tondo new cee",
+    "immagine": "foto/RIC1079ULU.jpg"
+  },
+  {
+    "codice": "RIC1092L01",
+    "nome": "Gruppo guarnizioni magnetiche",
+    "prezzo": "€ 50,00",
+    "descrizione": "coppia guarnizione con magnete",
+    "immagine": "foto/RIC1092L01.jpg"
+  },
+  {
+    "codice": "RIC1095",
+    "nome": "Gruppo guarnizioni magnetiche",
+    "prezzo": "€ 50,00 (Listino 80)",
+    "descrizione": "coppia guarnizione con magnete",
+    "immagine": "foto/RIC1095.jpg"
+  },
+  {
+    "codice": "RIC1096",
+    "nome": "Gruppo guarnizioni orizzontali",
+    "prezzo": "€ 30,00 (Listino 80)",
+    "descrizione": "coppia guarnizione orizzontali per polaris",
+    "immagine": "foto/RIC1095.jpg"
+  },
+  {
+    "codice": "RIC1199C",
+    "nome": "Cerniera Polaris",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "coppia cerniere (una Sup. e una Inf.) per polaris",
+    "immagine": "foto/RIC1199C.jpg"
+  },
+  {
+    "codice": "RIC1373",
+    "nome": "Scorrevole Tondo",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "Scorrimento per Tondo: un KIT equivale a 4 pz",
+    "immagine": "foto/RIC373.jpg"
+  },
+  {
+    "codice": "RIC1378ULU",
+    "nome": "Guarnizione Saloon",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "guarnizione orizzontale per binario Saloon",
+    "immagine": "foto/RIC378ULU.jpg"
+  },
+  {
+    "codice": "RIC2354ULU",
+    "nome": "Maniglia cromata",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "Maniglia cromo per Business: da completare con RIC2355ULU (pomelli)",
+    "immagine": "foto/RIC2354ULU.jpg"
+  },
+  {
+    "codice": "RIC2599ULU",
+    "nome": "Sgancio America 4",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "Sgancio anta per America4 Sp vecchio modello",
+    "immagine": "foto/RIC2599ULU.jpg"
+  },
+  {
+    "codice": "ASIA-VECCHIO",
+    "nome": "Scorrevole Asia (Fuori prod.)",
+    "prezzo": "NON DISPONIBILE",
+    "descrizione": "Ricambio non più fornibile",
+    "immagine": "foto/RICASIAFP.jpg"
+  },
+  {
+    "codice": "RIC1599",
+    "nome": "Scorrimento per HEXA",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "uno scorrimento per box HEXA",
+    "immagine": "foto/RIC362.jpg"
+  },
+  {
+    "codice": "RIC362",
+    "nome": "Calamite America",
+    "prezzo": "€ 50,00 (Listino 80)",
+    "descrizione": "Coppia guarnizioni calamitate per America Tondo",
+    "immagine": "foto/RIC1599L01.jpg"
+  },
+  {
+    "codice": "RIC352",
+    "nome": "Blocco Scorrimento (Esaurito)",
+    "prezzo": "NON DISPONIBILE",
+    "descrizione": "Gruppo blocco scorrimenti esaurito",
+    "immagine": "foto/RIC352.jpg"
+  },
+  {
+    "codice": "RIC353",
+    "nome": "Blocco Scorrimento",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "scorrevole singolo",
+    "immagine": "foto/RIC353.jpg"
+  },
+  {
+    "codice": "RIC359",
+    "nome": "Blocco Scorrimento Asia",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "scorrevole singolo per vecchio modello Asia Tondo",
+    "immagine": "foto/RIC3539.jpg"
+  },
+  {
+    "codice": "RIC897",
+    "nome": "Scorrimento",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "blocco scorrevole (composto da sup. + inf.)",
+    "immagine": "foto/RIC897.jpg"
+  },
+  {
+    "codice": "RIC895",
+    "nome": "Scorrimento singolo",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "Scorrevole singolo",
+    "immagine": "foto/RIC895.jpg"
+  },
+  {
+    "codice": "RIC898",
+    "nome": "Scorrimento America",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "Scorrevole per America nicchia 3 ante (kit)",
+    "immagine": "foto/RIC898.jpg"
+  },
+  {
+    "codice": "RIC903",
+    "nome": "Maniglia New Cee",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "gruppo una maniglia cromata (senza pomoli)",
+    "immagine": "foto/RIC903.jpg"
+  },
+  {
+    "codice": "RIC990",
+    "nome": "Scorrevole Iberica/Ciao",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "Scorrevole (kit 4 pezzi) vecchio modello",
+    "immagine": "foto/RIC990.jpg"
+  },
+  {
+    "codice": "RIC999",
+    "nome": "Scorrevole Iberica",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "Scorrevole (kit 4 pezzi)",
+    "immagine": "foto/RIC999.jpg"
+  },
+  {
+    "codice": "RIC1068L01",
+    "nome": "Maniglia esterna New CEE",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "Kit Maniglia originale",
+    "immagine": "foto/RIC1068L01.jpg"
+  },
+  {
+    "codice": "RIC1069L01",
+    "nome": "Perno cerniera New CEE",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "Perno cerniera di ricambio",
+    "immagine": "foto/RIC1069L01.jpg"
+  },
+  {
+    "codice": "RIC1070ULU",
+    "nome": "Gruppo guarnizioni New CEE",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "gruppo guarnizioni complete per new cee",
+    "immagine": "foto/RIC1070ULU.jpg"
+  },
+  {
+    "codice": "RIC1600L01",
+    "nome": "Scorrimenti",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "gruppo Scorrimenti: 1 inf e uno sup",
+    "immagine": "foto/RIC1600L01.jpg"
+  },
+  {
+    "codice": "RIC1599L01",
+    "nome": "Guarnizioni calamitate America Up",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "gruppo guarnizioni calamitate serie America up",
+    "immagine": "foto/RIC1599.jpg"
+  },
+  {
+    "codice": "RIC1619L01",
+    "nome": "Scorrimenti",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "gruppo Scorrimenti serie 1619",
+    "immagine": "foto/RIC1619L01.jpg"
+  },
+  {
+    "codice": "RIC1641L01",
+    "nome": "Sganci inferiori",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "gruppo sganci (1 coppia)",
+    "immagine": "foto/RIC1641L01.jpg"
+  },
+  {
+    "codice": "RIC1715",
+    "nome": "Scorrimenti Europa",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "gruppo Scorrimenti per serie Europa",
+    "immagine": "foto/RIC1715.jpg"
+  },
+  {
+    "codice": "RIC1716",
+    "nome": "Scorrimenti Europa",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "gruppo Scorrimenti per serie Europa",
+    "immagine": "foto/RIC1716.jpg"
+  },
+  {
+    "codice": "RIC1730ULU",
+    "nome": "Perni Europa",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "Perni grigi per Europa",
+    "immagine": "foto/RIC1730ULU.jpg"
+  },
+  {
+    "codice": "RIC1806",
+    "nome": "Scorrevole per Saloon",
+    "prezzo": "NON AGGIORNATO",
+    "descrizione": "Scorrimento per porta a saloon",
+    "immagine": "foto/RIC1806.jpg"
+  }
+]
