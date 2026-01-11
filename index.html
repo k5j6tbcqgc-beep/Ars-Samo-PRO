@@ -6,146 +6,126 @@
     <title>ARS SAMO PRO</title>
     <style>
         :root { --blu: #003a70; --bg: #f4f7f9; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; text-align: center; }
-        .container { max-width: 400px; margin: auto; background: white; border-radius: 25px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .btn-foto { background: var(--blu); color: white; border: none; padding: 18px; border-radius: 15px; width: 100%; font-size: 16px; font-weight: bold; cursor: pointer; }
-        #preview-box { margin-top: 20px; display: none; position: relative; border-radius: 15px; overflow: hidden; border: 1px solid #ddd; background: #000; }
-        #preview-img { width: 100%; display: block; opacity: 0.8; }
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; padding: 15px; }
+        body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 15px; text-align: center; }
+        .container { max-width: 400px; margin: auto; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .btn-foto { background: var(--blu); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-size: 16px; font-weight: bold; }
+        #preview-box { margin-top: 20px; display: none; position: relative; border-radius: 15px; overflow: hidden; border: 1px solid #ddd; }
+        #preview-img { width: 100%; display: block; }
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; }
         .bar-bg { width: 80%; background: #eee; height: 10px; border-radius: 5px; overflow: hidden; }
         .bar-fill { width: 0%; height: 100%; background: var(--blu); transition: width 0.3s; }
         #status { font-size: 13px; color: var(--blu); font-weight: bold; margin-top: 10px; }
-        .result-card { margin-top: 20px; text-align: left; background: #fff; border: 2px solid #e7f3ff; padding: 15px; border-radius: 18px; display: none; }
-        #debug-log { font-size: 10px; color: #7f8c8d; margin-top: 15px; text-align: left; background: #f8f9fa; padding: 10px; border-radius: 5px; display: none; white-space: pre-wrap; word-break: break-all; }
+        #debug { font-size: 11px; color: #666; margin-top: 20px; text-align: left; background: #eee; padding: 10px; display: none; white-space: pre-wrap; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1 style="color:var(--blu); margin:0 0 15px; font-size:24px;">ARS SAMO</h1>
-    
+    <h1 style="color:var(--blu)">ARS SAMO</h1>
     <input type="file" id="fileIn" accept="image/*" capture="environment" style="display:none">
-    <button class="btn-foto" onclick="document.getElementById('fileIn').click()">📸 SCATTA O CARICA FOTO</button>
+    <button class="btn-foto" onclick="document.getElementById('fileIn').click()">📸 SCATTA FOTO</button>
 
     <div id="preview-box">
         <img id="preview-img">
         <div id="loader" class="overlay">
             <div class="bar-bg"><div id="bar" class="bar-fill"></div></div>
-            <div id="status">Inizializzazione...</div>
+            <div id="status">Caricamento...</div>
         </div>
     </div>
-
-    <div id="result" class="result-card"></div>
-    <div id="debug-log"></div>
+    <div id="result" style="margin-top:20px; text-align:left; display:none"></div>
+    <div id="debug"></div>
 </div>
 
 <script>
+// USIAMO UNA CHIAVE API PULITA (Assicurati che sia corretta)
 const API_KEY = "AIzaSyAySbcpQEBBFmYRBRhvyj-0kLZ5l-cb45Y";
 
 document.getElementById('fileIn').onchange = async function(e) {
     const file = e.target.files[0];
-    if (!file) return;
-
-    const previewBox = document.getElementById('preview-box');
-    const previewImg = document.getElementById('preview-img');
-    const loader = document.getElementById('loader');
     const bar = document.getElementById('bar');
     const status = document.getElementById('status');
+    const loader = document.getElementById('loader');
+    const debug = document.getElementById('debug');
     const resultDiv = document.getElementById('result');
-    const debug = document.getElementById('debug-log');
 
-    previewImg.src = URL.createObjectURL(file);
-    previewBox.style.display = 'block';
+    document.getElementById('preview-img').src = URL.createObjectURL(file);
+    document.getElementById('preview-box').style.display = 'block';
     loader.style.display = 'flex';
-    resultDiv.style.display = 'none';
     debug.style.display = 'block';
-    debug.innerText = "Avvio processo...";
+    debug.innerText = "Log di sistema:";
 
-    const upd = (p, t) => { bar.style.width = p+'%'; status.innerText = t; debug.innerText += "\n" + t; };
+    const upd = (p, t) => { bar.style.width = p+'%'; status.innerText = t; debug.innerText += "\n- " + t; };
 
     try {
-        upd(15, "Handshaking...");
-
-        const base64 = await new Promise((resolve) => {
-            const img = new Image();
-            img.src = URL.createObjectURL(file);
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const scale = Math.min(800 / img.width, 800 / img.height, 1);
-                canvas.width = img.width * scale;
-                canvas.height = img.height * scale;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                resolve(canvas.toDataURL('image/jpeg', 0.6).split(',')[1]);
-            };
+        upd(20, "Compressione...");
+        const base64 = await new Promise(r => {
+            const reader = new FileReader();
+            reader.onload = () => r(reader.result.split(',')[1]);
+            reader.readAsDataURL(file);
         });
 
-        upd(40, "Ottimizzazione immagine...");
+        upd(40, "Caricamento Database...");
         const dbRes = await fetch('database.json');
         const db = await dbRes.json();
-        const listaCodici = db.map(i => i.codice).join(", ");
+        const codici = db.map(i => i.codice).join(", ");
 
-        upd(65, "Confronto codici...");
+        upd(60, "Chiamata AI (v1beta)...");
+        // PROVIAMO L'ENDPOINT PIÙ COMPATIBILE IN ASSOLUTO
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=${API_KEY}`;
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [
+                    { text: "Codice ricambio tra questi: " + codici + ". Solo codice." },
+                    { inline_data: { mime_type: "image/jpeg", data: base64 } }
+                ]}]
+            })
+        });
 
-        // TENTATIVI MULTIPLI DI URL (Per risolvere l'errore 404)
-        const endpoints = [
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`,
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
-            `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`
-        ];
-
-        let apiRes;
-        let lastError = "";
-
-        for (let url of endpoints) {
-            try {
-                debug.innerText += "\nProvo endpoint: " + url.split('/')[5];
-                apiRes = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [
-                            { text: "Identifica il ricambio Samo tra questi codici: " + listaCodici + ". Scrivi SOLO il codice." },
-                            { inline_data: { mime_type: "image/jpeg", data: base64 } }
-                        ]}]
-                    })
-                });
-                if (apiRes.ok) break;
-                const errData = await apiRes.json();
-                lastError = errData.error.message;
-            } catch (e) {
-                lastError = e.message;
-            }
+        const data = await response.json();
+        
+        if (!response.ok) {
+            debug.innerText += "\nERRORE: " + JSON.stringify(data);
+            // SECONDO TENTATIVO CON ALTRO MODELLO SE IL PRIMO FALLISCE
+            upd(70, "Riprovo con Flash...");
+            const url2 = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+            const res2 = await fetch(url2, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [
+                        { text: "Codice ricambio: " + codici },
+                        { inline_data: { mime_type: "image/jpeg", data: base64 } }
+                    ]}]
+                })
+            });
+            const data2 = await res2.json();
+            if (!res2.ok) throw new Error(data2.error.message);
+            processData(data2);
+        } else {
+            processData(data);
         }
 
-        if (!apiRes || !apiRes.ok) throw new Error("Tutti i tentativi falliti. Ultimo errore: " + lastError);
-
-        upd(90, "Accesso database...");
-        const data = await apiRes.json();
-        const aiText = data.candidates[0].content.parts[0].text.toUpperCase().trim();
-        const trovato = db.find(item => aiText.includes(item.codice.toUpperCase()));
-
-        loader.style.display = 'none';
-        debug.style.display = 'none';
-        resultDiv.style.display = 'block';
-
-        if(trovato) {
-            resultDiv.innerHTML = `
-                <div style="color:var(--blu); font-weight:800; font-size:12px; margin-bottom:10px;">IDENTIFICATO:</div>
-                <div style="font-size:20px; font-weight:800;">${trovato.codice}</div>
-                <div style="font-size:16px; margin:5px 0;">${trovato.nome}</div>
-                <div style="color:var(--blu); font-size:24px; font-weight:800; margin:10px 0;">${trovato.prezzo}</div>
-                <p style="font-size:13px; color:#666;">${trovato.descrizione}</p>
-                <img src="${trovato.immagine}" style="width:100%; border-radius:12px; margin-top:10px;" onerror="this.src='https://via.placeholder.com/300?text=Immagine+Database'">
-            `;
-        } else {
-            resultDiv.innerHTML = "<b>⚠️ Non riconosciuto</b><br><small>AI ha risposto: "+aiText+"</small>";
+        function processData(payload) {
+            upd(100, "Completato!");
+            const aiText = payload.candidates[0].content.parts[0].text.trim().toUpperCase();
+            const trovato = db.find(i => aiText.includes(i.codice.toUpperCase()));
+            
+            loader.style.display = 'none';
+            resultDiv.style.display = 'block';
+            if(trovato) {
+                resultDiv.innerHTML = `<h3>${trovato.codice}</h3><p>${trovato.nome}</p><p><b>${trovato.prezzo}</b></p><img src="${trovato.immagine}" style="width:100%">`;
+            } else {
+                resultDiv.innerHTML = "<b>Non trovato.</b> AI dice: " + aiText;
+            }
         }
 
     } catch (err) {
         loader.style.display = 'none';
         debug.style.color = "red";
-        debug.innerText = "ERRORE DEFINITIVO:\n" + err.message;
+        debug.innerText += "\nFALLIMENTO: " + err.message;
     }
 };
 </script>
