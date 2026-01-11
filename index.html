@@ -8,7 +8,7 @@
         :root { --blu: #003a70; --bg: #f4f7f9; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; }
         .container { max-width: 400px; margin: auto; background: white; border-radius: 25px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
-        .btn-foto { background: var(--blu); color: white; border: none; padding: 18px; border-radius: 15px; width: 100%; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,58,112,0.3); }
+        .btn-foto { background: var(--blu); color: white; border: none; padding: 18px; border-radius: 15px; width: 100%; font-size: 16px; font-weight: bold; cursor: pointer; }
         #preview-box { margin-top: 20px; display: none; position: relative; border-radius: 15px; overflow: hidden; border: 1px solid #ddd; background: #000; }
         #preview-img { width: 100%; display: block; opacity: 0.8; }
         .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; }
@@ -17,7 +17,7 @@
         #status { font-size: 12px; color: var(--blu); font-weight: bold; margin-top: 10px; }
         .result-card { margin-top: 20px; text-align: left; background: #fff; border: 2px solid #e7f3ff; padding: 15px; border-radius: 18px; display: none; }
         .price { color: var(--blu); font-size: 22px; font-weight: 800; margin: 10px 0; }
-        #debug-log { font-size: 10px; color: red; margin-top: 10px; text-align: left; display: none; }
+        #debug-log { font-size: 10px; color: red; margin-top: 10px; text-align: left; display: none; white-space: pre-wrap; }
     </style>
 </head>
 <body>
@@ -44,6 +44,7 @@
 </div>
 
 <script>
+// La tua chiave API
 const API_KEY = "AIzaSyAySbcpQEBBFmYRBRhvyj-0kLZ5l-cb45Y";
 
 document.getElementById('fileIn').onchange = async function(e) {
@@ -58,11 +59,11 @@ document.getElementById('fileIn').onchange = async function(e) {
     const resultDiv = document.getElementById('result');
     const debug = document.getElementById('debug-log');
 
-    // Reset UI
     previewImg.src = URL.createObjectURL(file);
     previewBox.style.display = 'block';
     loader.style.display = 'flex';
     resultDiv.style.display = 'none';
+    debug.style.display = 'none';
     debug.innerText = "";
 
     const upd = (p, t) => { bar.style.width = p+'%'; status.innerText = t; };
@@ -87,31 +88,35 @@ document.getElementById('fileIn').onchange = async function(e) {
 
         upd(40, "Ottimizzazione immagine...");
         const dbRes = await fetch('database.json');
-        if (!dbRes.ok) throw new Error("Database non trovato su GitHub");
         const db = await dbRes.json();
         const listaCodici = db.map(i => i.codice).join(", ");
 
         upd(65, "Confronto codici...");
-        const apiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+        
+        // INDIRIZZO AGGIORNATO ALLA V1 (Più stabile)
+        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        
+        const apiRes = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{ parts: [
-                    { text: "Sei un esperto Samo. Identifica questo ricambio tra questi codici: " + listaCodici + ". Rispondi scrivendo SOLO il codice." },
+                    { text: "Sei un esperto Samo. Identifica il codice tra questi: " + listaCodici + ". Rispondi scrivendo SOLO il codice." },
                     { inline_data: { mime_type: "image/jpeg", data: base64 } }
                 ]}]
             })
         });
 
-        if (!apiRes.ok) throw new Error("Errore API Gemini. Verifica la chiave.");
-        
+        if (!apiRes.ok) {
+            const errJson = await apiRes.json();
+            throw new Error(errJson.error.message || "Errore API");
+        }
+
         upd(90, "Accesso database...");
         const data = await apiRes.json();
         upd(95, "Prego attendere...");
 
         const aiText = data.candidates[0].content.parts[0].text.toUpperCase().trim();
-        
-        // RICERCA ROBUSTA: cerchiamo se il codice è contenuto nella risposta
         const trovato = db.find(item => aiText.includes(item.codice.toUpperCase()));
 
         loader.style.display = 'none';
@@ -127,7 +132,7 @@ document.getElementById('fileIn').onchange = async function(e) {
                 <img src="${trovato.immagine}" style="width:100%; border-radius:10px; margin-top:10px;" onerror="this.src='https://via.placeholder.com/300?text=Foto+non+disponibile'">
             `;
         } else {
-            resultDiv.innerHTML = "<div style='padding:15px;'><b>⚠️ Non riconosciuto</b><br><small>Invia la foto al commerciale. (AI ha risposto: "+aiText+")</small></div>";
+            resultDiv.innerHTML = "<b>⚠️ Non riconosciuto</b><br><small>AI ha risposto: "+aiText+"</small>";
         }
 
     } catch (err) {
